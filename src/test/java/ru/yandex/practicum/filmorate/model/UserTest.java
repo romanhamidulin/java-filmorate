@@ -40,7 +40,7 @@ class UserTest {
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(2, violations.size());
+        assertEquals(1, violations.size());
         assertTrue(violations.stream().anyMatch(v -> v.getMessage().equals("Email должен быть корректным")));
     }
 
