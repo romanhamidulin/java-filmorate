@@ -1,9 +1,13 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.controller.DurationDeserializer;
+import ru.yandex.practicum.filmorate.controller.DurationSerializer;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -24,6 +28,8 @@ public class Film {
 
     @NotNull(message = "Продолжительность обязательна")
     //@Positive(message = "Продолжительность должна быть положительной")
+    @JsonSerialize(using = DurationSerializer.class)
+    @JsonDeserialize(using = DurationDeserializer.class)
     private Duration duration;
 }
 

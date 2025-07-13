@@ -27,34 +27,26 @@ public class FilmController {
     public Film addFilm(@Valid @RequestBody Film film) {
         log.info("Получен запрос на добавление фильма: {}", film);
 
-        // Дополнительная валидация даты релиза
-        if (film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
-            String message = "Дата релиза не может быть раньше " + MIN_RELEASE_DATE;
-            log.warn(message);
-            throw new ValidationException(message);
-        }
-        if (film.getDuration().isNegative() || film.getDuration().isZero()) {
-            throw new ValidationException("Продолжительность должна быть положительной");
-        }
+        log.info("Получен запрос на создание фильма: {}", film);
 
+        validateFilm(film);
         film.setId(idCounter++);
         films.put(film.getId(), film);
-        log.info("Фильм успешно добавлен: {}", film);
+
+        log.info("Фильм создан: {}", film);
         return film;
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
-        log.info("Получен запрос на обновление фильма с id {}: {}", film.getId(), film);
+        log.info("Получен запрос на обновление фильма: {}", film);
 
+        validateFilm(film);
         if (!films.containsKey(film.getId())) {
-            String message = "Фильм с id " + film.getId() + " не найден";
-            log.error(message);
-            throw new ValidationException(message);
+            throw new ValidationException("Фильм с id " + film.getId() + " не найден");
         }
 
         films.put(film.getId(), film);
-        log.info("Фильм успешно обновлен: {}", film);
         return film;
     }
 
@@ -62,5 +54,14 @@ public class FilmController {
     public List<Film> getAllFilms() {
         log.info("Получен запрос на получение списка всех фильмов");
         return new ArrayList<>(films.values());
+    }
+    private void validateFilm(Film film) {
+        if (film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
+            throw new ValidationException("Дата релиза не может быть раньше " + MIN_RELEASE_DATE);
+        }
+
+        if (film.getDuration().isNegative() || film.getDuration().isZero()) {
+            throw new ValidationException("Продолжительность должна быть положительной");
+        }
     }
 }
