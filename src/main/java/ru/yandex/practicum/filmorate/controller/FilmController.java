@@ -55,6 +55,7 @@ public class FilmController {
         log.info("Получен запрос на получение списка всех фильмов");
         return new ArrayList<>(films.values());
     }
+
     private void validateFilm(Film film) {
         if (film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
             throw new ValidationException("Дата релиза не может быть раньше " + MIN_RELEASE_DATE);
