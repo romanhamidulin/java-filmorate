@@ -10,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,7 +28,7 @@ class ControllersTest {
         film.setName("");
         film.setDescription("a".repeat(201));
         film.setReleaseDate(null);
-        film.setDuration(-1);
+        film.setDuration(Duration.ofMinutes(-1));
 
         ResponseEntity<String> response = restTemplate.postForEntity("/films", film, String.class);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());

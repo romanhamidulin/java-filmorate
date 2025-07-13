@@ -6,6 +6,7 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ class FilmTest {
         film.setName("Valid Film");
         film.setDescription("Valid description");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(120);
+        film.setDuration(Duration.ofMinutes(120));
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertTrue(violations.isEmpty());
@@ -37,7 +38,7 @@ class FilmTest {
         film.setName("");
         film.setDescription("Valid description");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(120);
+        film.setDuration(Duration.ofMinutes(120));
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertEquals(1, violations.size());
@@ -50,7 +51,7 @@ class FilmTest {
         film.setName("Valid Film");
         film.setDescription("a".repeat(201));
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(120);
+        film.setDuration(Duration.ofMinutes(120));
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertEquals(1, violations.size());
@@ -63,7 +64,7 @@ class FilmTest {
         film.setName("Valid Film");
         film.setDescription("Valid description");
         film.setReleaseDate(null);
-        film.setDuration(120);
+        film.setDuration(Duration.ZERO);
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertEquals(1, violations.size());
@@ -71,15 +72,15 @@ class FilmTest {
     }
 
     @Test
-    void whenDurationIsNegativen() {
+    void whenDurationIsNegative() {
         Film film = new Film();
         film.setName("Valid Film");
         film.setDescription("Valid description");
-        film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(-1);
+        film.setReleaseDate(LocalDate.now());
+        film.setDuration(null); // Только null может вызвать ошибку
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertEquals(1, violations.size());
-        assertEquals("Продолжительность должна быть положительной", violations.iterator().next().getMessage());
+        assertEquals("Продолжительность обязательна", violations.iterator().next().getMessage());
     }
 }

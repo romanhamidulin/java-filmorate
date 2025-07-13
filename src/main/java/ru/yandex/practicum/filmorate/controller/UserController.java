@@ -25,13 +25,6 @@ public class UserController {
     public User createUser(@Valid @RequestBody User user) {
         log.info("Получен запрос на создание пользователя: {}", user);
 
-        // Дополнительная валидация
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            String message = "Дата рождения не может быть в будущем";
-            log.warn(message);
-            throw new ValidationException(message);
-        }
-
         // Если имя не указано, используем логин
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());

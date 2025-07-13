@@ -33,6 +33,9 @@ public class FilmController {
             log.warn(message);
             throw new ValidationException(message);
         }
+        if (film.getDuration().isNegative() || film.getDuration().isZero()) {
+            throw new ValidationException("Продолжительность должна быть положительной");
+        }
 
         film.setId(idCounter++);
         films.put(film.getId(), film);
