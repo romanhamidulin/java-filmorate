@@ -56,7 +56,7 @@ class FilmServiceTest {
     }
 
     @Test
-    void GetFilmById() {
+    void getFilmById() {
 
         Film film = new Film();
         film.setName("Valid Film");
@@ -72,7 +72,7 @@ class FilmServiceTest {
     }
 
     @Test
-    void GetAllFilms() {
+    void getAllFilms() {
 
         Film film = new Film();
         film.setName("Valid Film");
