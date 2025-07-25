@@ -5,11 +5,13 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ru.yandex.practicum.filmorate.service.UserService.validateUser;
 
 class UserTest {
     private final Validator validator;
@@ -39,9 +41,8 @@ class UserTest {
         user.setName("Valid Name");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1, violations.size());
-        assertTrue(violations.stream().anyMatch(v -> v.getMessage().equals("Email должен быть корректным")));
+        ValidationException e = assertThrows(ValidationException.class, () -> validateUser(user));
+        assertEquals("Электронная почта не может быть пустой и должна содержать символ @.", e.getMessage());
     }
 
     @Test
@@ -52,9 +53,8 @@ class UserTest {
         user.setName("Valid Name");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1, violations.size());
-        assertEquals("Логин не должен содержать пробелы", violations.iterator().next().getMessage());
+        ValidationException e = assertThrows(ValidationException.class, () -> validateUser(user));
+        assertEquals("Логин не может быть пустым и содержать пробелы.", e.getMessage());
     }
 
     @Test
@@ -65,9 +65,8 @@ class UserTest {
         user.setName("Valid Name");
         user.setBirthday(LocalDate.now().plusDays(1));
 
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1, violations.size());
-        assertEquals("Дата рождения не может быть в будущем", violations.iterator().next().getMessage());
+        ValidationException e = assertThrows(ValidationException.class, () -> validateUser(user));
+        assertEquals("Дата рождения не может быть в будущем.", e.getMessage());
     }
 
     @Test

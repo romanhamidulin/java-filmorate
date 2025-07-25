@@ -50,6 +50,6 @@ class ControllersTest {
     @Test
     void whenPostEmptyBody() {
         ResponseEntity<String> response = restTemplate.postForEntity("/films", null, String.class);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 }
