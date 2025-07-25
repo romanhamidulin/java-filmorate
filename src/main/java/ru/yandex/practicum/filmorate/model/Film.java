@@ -11,25 +11,29 @@ import ru.yandex.practicum.filmorate.controller.DurationSerializer;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
 
     private int id;
 
-    @NotBlank(message = "Название не может быть пустым")
+    @NotBlank
     private String name;
 
-    @Size(max = 200, message = "Описание не должно превышать 200 символов")
+    @Size
     private String description;
 
-    @NotNull(message = "Дата релиза обязательна")
+    @NotNull
     private LocalDate releaseDate;
 
-    @NotNull(message = "Продолжительность обязательна")
-    //@Positive(message = "Продолжительность должна быть положительной")
+    @NotNull
+    //@Positive
     @JsonSerialize(using = DurationSerializer.class)
     @JsonDeserialize(using = DurationDeserializer.class)
     private Duration duration;
+
+    private final Set<Integer> likes = new HashSet<>();
 }
 

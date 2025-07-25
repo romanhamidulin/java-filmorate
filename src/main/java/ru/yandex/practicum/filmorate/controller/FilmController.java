@@ -1,68 +1,77 @@
 package ru.yandex.practicum.filmorate.controller;
 
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int idCounter = 1;
-    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
+    private final FilmService filmService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Film addFilm(@Valid @RequestBody Film film) {
-        log.info("Получен запрос на добавление фильма: {}", film);
-
-        log.info("Получен запрос на создание фильма: {}", film);
-
-        validateFilm(film);
-        film.setId(idCounter++);
-        films.put(film.getId(), film);
-
-        log.info("Фильм создан: {}", film);
-        return film;
-    }
-
-    @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
-        log.info("Получен запрос на обновление фильма: {}", film);
-
-        validateFilm(film);
-        if (!films.containsKey(film.getId())) {
-            throw new ValidationException("Фильм с id " + film.getId() + " не найден");
-        }
-
-        films.put(film.getId(), film);
-        return film;
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @GetMapping
     public List<Film> getAllFilms() {
-        log.info("Получен запрос на получение списка всех фильмов");
-        return new ArrayList<>(films.values());
+        return filmService.getAllFilms();
     }
 
-    private void validateFilm(Film film) {
-        if (film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
-            throw new ValidationException("Дата релиза не может быть раньше " + MIN_RELEASE_DATE);
-        }
+    @PostMapping
+    public Film saveFilm(@RequestBody Film film) {
+        return filmService.addFilm(film);
+    }
 
-        if (film.getDuration().isNegative() || film.getDuration().isZero()) {
-            throw new ValidationException("Продолжительность должна быть положительной");
-        }
+    @PutMapping
+    public Film updateFilm(@RequestBody Film film) {
+        return filmService.updateFilm(film);
+    }
+
+    @DeleteMapping
+    public void deleteFirm(@RequestBody int filmId) {
+        filmService.deleteFilm(filmId);
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable int id) {
+        log.info("Запрос на получение фильма по id: {}", id);
+        Film film = filmService.getFilmById(id);
+        log.info("Вернули фильм: {}", film);
+        return film;
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(
+            @PathVariable int id,
+            @PathVariable int userId) {
+        log.info("Запрос на добавление лайка фильму: filmId={}, userId={}", id, userId);
+        return filmService.addLike(id, userId);
+
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film removeLike(
+            @PathVariable int id,
+            @PathVariable int userId) {
+        log.info("Запрос на удаление лайка у фильма: filmId={}, userId={}", id, userId);
+        return filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(
+            @RequestParam(defaultValue = "10") int count) {
+        log.info("Запрос на получение топа популярных фильмов {} ", count);
+        List<Film> popularFilms = filmService.getPopularFilms(count);
+        log.info("Вернули топ популярных фильмов {}", popularFilms.size());
+        return popularFilms;
     }
 }
+
