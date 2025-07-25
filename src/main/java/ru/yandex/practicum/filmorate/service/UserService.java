@@ -92,6 +92,7 @@ public class UserService {
         }
         return user;
     }
+
     public static void validateUser(User user) {
 
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
