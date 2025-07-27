@@ -32,7 +32,7 @@ public class UserService {
     public User createUser(User user) {
         validateUser(user);
         if (userStorage.getAllUsers().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
-            throw new ValidationException("Электронная почта "+ user.getEmail() + " уже используется");
+            throw new ValidationException("Электронная почта " + user.getEmail() + " уже используется");
         }
         log.info("Пользователь добавлен.");
         return userStorage.createUser(user);
