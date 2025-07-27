@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static ru.yandex.practicum.filmorate.service.UserService.validateUser;
 
 class UserTest {
     private final Validator validator;
@@ -79,5 +78,21 @@ class UserTest {
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertTrue(violations.isEmpty());
+    }
+
+    private static void validateUser(User user) {
+
+        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @.");
+        }
+        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+            throw new ValidationException("Логин не может быть пустым и содержать пробелы.");
+        }
+        if ((user.getName() == null) || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        if (user.getBirthday() == null || user.getBirthday().isAfter(LocalDate.now())) {
+            throw new ValidationException("Дата рождения не может быть в будущем.");
+        }
     }
 }

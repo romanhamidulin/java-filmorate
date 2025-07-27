@@ -6,7 +6,6 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import static ru.yandex.practicum.filmorate.service.FilmService.validateFilm;
 
 
 import java.time.Duration;
@@ -81,5 +80,24 @@ class FilmTest {
 
         ValidationException e = assertThrows(ValidationException.class, () -> validateFilm(film));
         assertEquals("Продолжительность должна быть положительной", e.getMessage());
+    }
+
+    private static void validateFilm(Film film) {
+        LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
+        if (film.getName() == null || film.getName().isBlank()) {
+            throw new ValidationException("Название фильма не может быть пустым.");
+        }
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
+            throw new ValidationException("Максимальная длина описания — 200 символов.");
+        }
+        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
+            String message = "Дата релиза не может быть нулевой или раньше " + MIN_RELEASE_DATE;
+            throw new ValidationException(message);
+        }
+
+        if (film.getDuration().isNegative() || film.getDuration().isZero()) {
+            String message = "Продолжительность должна быть положительной";
+            throw new ValidationException(message);
+        }
     }
 }

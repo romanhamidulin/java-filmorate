@@ -20,6 +20,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User createUser(User user) {
         log.info("Получен запрос на создание пользователя: {}", user);
 
+
         // Если имя не указано, используем логин
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());

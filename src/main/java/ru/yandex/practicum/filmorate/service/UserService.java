@@ -31,12 +31,15 @@ public class UserService {
 
     public User createUser(User user) {
         validateUser(user);
+        if (userStorage.getAllUsers().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
+            throw new ValidationException("Электронная почта "+ user.getEmail() + " уже используется");
+        }
         log.info("Пользователь добавлен.");
         return userStorage.createUser(user);
     }
 
     public User updateUser(User user) {
-        //validateUser(user);
+        validateUser(user);
         log.info("Пользователь обновлен.");
         return userStorage.updateUser(user);
     }
@@ -93,7 +96,7 @@ public class UserService {
         return user;
     }
 
-    public static void validateUser(User user) {
+    private static void validateUser(User user) {
 
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @.");
