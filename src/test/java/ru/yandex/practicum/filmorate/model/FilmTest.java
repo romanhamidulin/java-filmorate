@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FilmTest {
     private final Validator validator;
+    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
     public FilmTest() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -83,7 +84,6 @@ class FilmTest {
     }
 
     private static void validateFilm(Film film) {
-        LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
         if (film.getName() == null || film.getName().isBlank()) {
             throw new ValidationException("Название фильма не может быть пустым.");
         }
