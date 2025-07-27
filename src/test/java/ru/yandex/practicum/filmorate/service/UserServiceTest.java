@@ -102,7 +102,7 @@ class UserServiceTest {
 
 
         User user = new User();
-        user.setEmail("valid@example.com");
+        user.setEmail("1valid@example.com");
         user.setLogin("validLogin");
         user.setName("Valid Name");
         user.setBirthday(LocalDate.of(2000, 1, 1));
@@ -128,8 +128,8 @@ class UserServiceTest {
 
 
         User user = new User();
-        user.setEmail("valid@example.com");
-        user.setLogin("validLogin");
+        user.setEmail("1valid@example.com");
+        user.setLogin("1validLogin");
         user.setName("Valid Name");
         user.setBirthday(LocalDate.of(2000, 1, 1));
         userService.createUser(user);
