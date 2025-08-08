@@ -72,7 +72,7 @@
 - подтверждённая — когда второй пользователь согласился на добавление.
 
 ## Cхема базы данных
-
+![image](https://github.com/romanhamidulin/java-filmorate/blob/main/src/main/resources/db_diagramm.png)
 [Ссылка на диаграмму](https://dbdiagram.io/d/68961f3ddd90d178651f9038)
 
 ## Примеры запросов:
