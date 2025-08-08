@@ -14,6 +14,7 @@ import java.util.Map;
 @Repository
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
+    private final Map<Integer, Integer> friends= new HashMap<>();
     private int idCounter = 1;
 
     @Override
@@ -71,5 +72,44 @@ public class InMemoryUserStorage implements UserStorage {
             throw new NotFoundException(message);
         }
         users.remove(id);
+    }
+
+    @Override
+    public User addFriend(int id, int friendId) {
+        if (friends.containsKey(id)) {
+            friends.put(id, friendId);
+        } else {
+            String message = "Неудачная попыдка добавить друзей пользователь с id " + id + " не найден";
+            log.error(message);
+            throw new NotFoundException(message);
+        }
+        return users.get(id);
+    }
+
+    @Override
+    public User removeFriend(int id, int friendId) {
+        if (friends.containsKey(id)) {
+            friends.remove(id, friendId);
+        } else {
+            String message = "Неудачная попыдка удалить друзей пользователь с id " + id + " не найден";
+            log.error(message);
+            throw new NotFoundException(message);
+        }
+        return users.get(id);
+    }
+
+    @Override
+    public List<User> getFriends(int id) {
+        List<User> friendsList = new ArrayList<>();
+        if (friends.containsKey(id)) {
+            for (Map.Entry<Integer, Integer> entry : friends.entrySet()) {
+                Integer uId = entry.getKey();
+                if (uId.equals(id)) {
+                    User friend = getById(entry.getValue());
+                    friendsList.add(friend);
+                }
+            }
+        }
+        return friendsList;
     }
 }
