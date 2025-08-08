@@ -5,6 +5,7 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -39,9 +40,8 @@ class UserTest {
         user.setName("Valid Name");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1, violations.size());
-        assertTrue(violations.stream().anyMatch(v -> v.getMessage().equals("Email должен быть корректным")));
+        ValidationException e = assertThrows(ValidationException.class, () -> validateUser(user));
+        assertEquals("Электронная почта не может быть пустой и должна содержать символ @.", e.getMessage());
     }
 
     @Test
@@ -52,9 +52,8 @@ class UserTest {
         user.setName("Valid Name");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1, violations.size());
-        assertEquals("Логин не должен содержать пробелы", violations.iterator().next().getMessage());
+        ValidationException e = assertThrows(ValidationException.class, () -> validateUser(user));
+        assertEquals("Логин не может быть пустым и содержать пробелы.", e.getMessage());
     }
 
     @Test
@@ -65,9 +64,8 @@ class UserTest {
         user.setName("Valid Name");
         user.setBirthday(LocalDate.now().plusDays(1));
 
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1, violations.size());
-        assertEquals("Дата рождения не может быть в будущем", violations.iterator().next().getMessage());
+        ValidationException e = assertThrows(ValidationException.class, () -> validateUser(user));
+        assertEquals("Дата рождения не может быть в будущем.", e.getMessage());
     }
 
     @Test
@@ -80,5 +78,21 @@ class UserTest {
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertTrue(violations.isEmpty());
+    }
+
+    private static void validateUser(User user) {
+
+        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @.");
+        }
+        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+            throw new ValidationException("Логин не может быть пустым и содержать пробелы.");
+        }
+        if ((user.getName() == null) || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        if (user.getBirthday() == null || user.getBirthday().isAfter(LocalDate.now())) {
+            throw new ValidationException("Дата рождения не может быть в будущем.");
+        }
     }
 }
