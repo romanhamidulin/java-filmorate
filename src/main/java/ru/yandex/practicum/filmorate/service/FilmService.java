@@ -107,12 +107,12 @@ public class FilmService {
             log.error(message);
             throw new ValidationException(message);
         }
-        if (film.getGenres() == null) {
+        /*if (film.getGenres() == null) {
             throw new ValidationException("Жанр фильма не может быть пустым");
         }
         if (film.getMpa() == null) {
             throw new ValidationException("Рейтинг MPA не может быть пустым");
-        }
+        }*/
 
         if (film.getDuration().isNegative() || film.getDuration().isZero()) {
             String message = "Продолжительность должна быть положительной";
