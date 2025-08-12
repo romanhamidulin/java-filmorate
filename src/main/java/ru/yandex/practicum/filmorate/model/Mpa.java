@@ -19,4 +19,7 @@ public class Mpa {
     @NotBlank
     private String name;
 
+    public Mpa(int id) {
+        this.id = id;
+    }
 }

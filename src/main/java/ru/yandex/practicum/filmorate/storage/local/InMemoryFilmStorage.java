@@ -1,19 +1,20 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage.local;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.*;
 
 @Slf4j
-@Repository
+@Component("InMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private final Map<Integer, Integer> likes = new HashMap<>();
-    private int idCounter = 1;
+    private final Map<Long, Film> films = new HashMap<>();
+    private final Map<Long, Long> likes = new HashMap<>();
+    private Long idCounter = 1L;
 
 
     @Override
@@ -47,7 +48,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getById(int id) {
+    public Film getById(Long id) {
         log.info("Получен запрос на получение фильма по id");
         if (!films.containsKey(id)) {
             String message = "Фильм с id " + id + " не найден";
@@ -58,7 +59,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film addLike(int id, int userId) {
+    public Film addLike(Long id, Long userId) {
         if (likes.containsKey(id)) {
             likes.put(id, userId);
         } else {
@@ -70,7 +71,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film removeLike(int id, int userId) {
+    public Film removeLike(Long id, Long userId) {
         if (likes.containsKey(id)) {
             likes.remove(id, userId);
         } else {
@@ -83,27 +84,30 @@ public class InMemoryFilmStorage implements FilmStorage {
 
 
     @Override
-    public void deleteFilm(int id) {
+    public void deleteFilm(Long id) {
         films.remove(id);
     }
 
     @Override
-    public Film addGenres(int id, Set<Genre> genres) {
+    public Film addGenres(Long id, Set<Genre> genres) {
         return films.get(id);
     }
 
     @Override
-    public Film updateGenres(int id, Set<Genre> genres) {
+    public Film updateGenres(Long id, Set<Genre> genres) {
         return films.get(id);
     }
 
     @Override
-    public Set<Genre> getGenres(int id) {
+    public Set<Genre> getGenres(Long id) {
         return null;
     }
 
     @Override
-    public Film deleteGenres(int id) {
+    public Film deleteGenres(Long id) {
         return films.get(id);
     }
+
+    @Override
+    public boolean isContains(Long id) { return false; }
 }

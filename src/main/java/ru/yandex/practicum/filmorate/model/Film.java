@@ -17,7 +17,7 @@ import java.util.Set;
 @Data
 public class Film {
 
-    private int id;
+    private Long id;
 
     @NotBlank
     private String name;
@@ -34,10 +34,11 @@ public class Film {
     @JsonDeserialize(using = DurationDeserializer.class)
     private Duration duration;
 
-    private final Set<Integer> likes = new HashSet<>();
+    private final Set<Long> likes = new HashSet<>();
 
     private Mpa mpa;
 
     private Set<Genre> genres = new HashSet<>();
+
 }
 

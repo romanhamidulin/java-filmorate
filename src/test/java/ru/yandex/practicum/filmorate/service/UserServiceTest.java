@@ -116,7 +116,7 @@ class UserServiceTest {
         user1.setBirthday(LocalDate.of(2000, 1, 1));
         userService.createUser(user1);
 
-        userService.addFriend(1, 2);
+        userService.addFriend(1L, 2L);
 
         List<User> friends = userService.getFriends(user1.getId());
 
@@ -142,9 +142,9 @@ class UserServiceTest {
         user2.setBirthday(LocalDate.of(2000, 1, 1));
         userService.createUser(user2);
 
-        userService.addFriend(1, 2);
+        userService.addFriend(1L, 2L);
 
-        userService.removeFriend(1, 2);
+        userService.removeFriend(1L, 2L);
 
         List<User> friends = userService.getFriends(user.getId());
 
@@ -169,7 +169,7 @@ class UserServiceTest {
         user2.setBirthday(LocalDate.of(2000, 1, 1));
         userService.createUser(user2);
 
-        userService.addFriend(1, 2);
+        userService.addFriend(1L, 2L);
 
         List<User> friends = userService.getFriends(user.getId());
 

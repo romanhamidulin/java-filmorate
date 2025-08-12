@@ -113,7 +113,7 @@ class FilmServiceTest {
 
         filmService.addLike(film.getId(), user.getId());
 
-        List<Film> likesFilm = filmService.getPopularFilms(10);
+        List<Film> likesFilm = filmService.getPopularFilms(10L);
 
         assertEquals(likesFilm.size(), 1);
     }
@@ -137,7 +137,7 @@ class FilmServiceTest {
         filmService.addLike(film.getId(), user.getId());
         filmService.removeLike(film.getId(), user.getId());
 
-        List<Integer> likesFilm = filmService.getFilmById(film.getId()).getLikes().stream().toList();
+        List<Long> likesFilm = filmService.getFilmById(film.getId()).getLikes().stream().toList();
 
         assertEquals(likesFilm.size(), 0);
     }
@@ -175,7 +175,7 @@ class FilmServiceTest {
         filmService.addLike(film.getId(), user.getId());
         filmService.addLike(film2.getId(), user.getId());
 
-        List<Film> popularFilm = filmService.getPopularFilms(2);
+        List<Film> popularFilm = filmService.getPopularFilms(2L);
 
         System.out.println(popularFilm.get(0));
 

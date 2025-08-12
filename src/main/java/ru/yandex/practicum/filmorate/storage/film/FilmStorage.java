@@ -14,20 +14,21 @@ public interface FilmStorage {
 
     List<Film> getAllFilms();
 
-    Film getById(int id);
+    Film getById(Long id);
 
-    void deleteFilm(int id);
+    void deleteFilm(Long id);
 
-    Film addLike(int id, int userId);
+    Film addLike(Long id, Long userId);
 
-    Film removeLike(int id, int userId);
+    Film removeLike(Long id, Long userId);
 
-    Film addGenres(int id, Set<Genre> genres);
+    Film addGenres(Long id, Set<Genre> genres);
 
-    Film updateGenres(int id, Set<Genre> genres);
+    Film updateGenres(Long id, Set<Genre> genres);
 
-    Set<Genre> getGenres(int id);
+    Set<Genre> getGenres(Long id);
 
-    Film deleteGenres(int id);
+    Film deleteGenres(Long id);
 
+    boolean isContains(Long id);
 }

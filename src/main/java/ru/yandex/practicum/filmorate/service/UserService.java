@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -20,7 +21,7 @@ public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("InMemoryUserStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -44,12 +45,12 @@ public class UserService {
         return userStorage.updateUser(user);
     }
 
-    public void deleteUser(int id) {
+    public void deleteUser(Long id) {
         log.info("Пользователь удален.");
         userStorage.deleteUser(id);
     }
 
-    public void addFriend(int userId, int friendId) {
+    public void addFriend(Long userId, Long friendId) {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
 
@@ -57,7 +58,7 @@ public class UserService {
         friend.getFriends().add(userId);
     }
 
-    public void removeFriend(int userId, int friendId) {
+    public void removeFriend(Long userId, Long friendId) {
         User user = getUserById(userId);
         User friend = getUserById(friendId);
 
@@ -65,30 +66,30 @@ public class UserService {
         friend.getFriends().remove(userId);
     }
 
-    public List<User> getFriends(int userId) {
+    public List<User> getFriends(Long userId) {
         User user = getUserById(userId);
         List<User> friends = new ArrayList<>();
-        for (Integer friendId : user.getFriends()) {
+        for (Long friendId : user.getFriends()) {
             friends.add(userStorage.getById(friendId));
         }
         return friends;
     }
 
-    public List<User> getCommonFriends(int userId, int otherUserId) {
+    public List<User> getCommonFriends(Long userId, Long otherUserId) {
         User user = getUserById(userId);
         User otherUser = getUserById(otherUserId);
 
-        Set<Integer> commonFriendIds = new HashSet<>(user.getFriends());
+        Set<Long> commonFriendIds = new HashSet<>(user.getFriends());
         commonFriendIds.retainAll(otherUser.getFriends());
 
         List<User> commonFriends = new ArrayList<>();
-        for (Integer friendId : commonFriendIds) {
+        for (Long friendId : commonFriendIds) {
             commonFriends.add(userStorage.getById(friendId));
         }
         return commonFriends;
     }
 
-    public User getUserById(int id) {
+    public User getUserById(Long id) {
         User user = userStorage.getById(id);
         if (user == null) {
             throw new NotFoundException("Пользователь с id " + id + " не найден");

@@ -12,13 +12,15 @@ public interface UserStorage {
 
     List<User> getAllUsers();
 
-    User getById(int id);
+    User getById(Long id);
 
-    void deleteUser(int id);
+    void deleteUser(Long id);
 
-    User addFriend(int userId, int friendId);
+    User addFriend(Long userId, Long friendId);
 
-    User removeFriend(int userId, int friendId);
+    User removeFriend(Long userId, Long friendId);
 
-    List<User> getFriends(int userId);
+    List<User> getFriends(Long userId);
+
+    boolean isContains(Long id);
 }

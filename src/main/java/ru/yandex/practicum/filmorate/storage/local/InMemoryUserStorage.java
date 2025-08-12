@@ -1,9 +1,10 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.storage.local;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,11 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Repository
+@Component("InMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
-    private final Map<Integer, User> users = new HashMap<>();
-    private final Map<Integer, Integer> friends= new HashMap<>();
-    private int idCounter = 1;
+    private final Map<Long, User> users = new HashMap<>();
+    private final Map<Long, Long> friends= new HashMap<>();
+    private Long idCounter = 1L;
 
     @Override
     public User createUser(User user) {
@@ -55,7 +56,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getById(int id) {
+    public User getById(Long id) {
         if (!users.containsKey(id)) {
             String message = "Пользователь с id " + id + " не найден";
             log.error(message);
@@ -65,7 +66,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void deleteUser(int id) {
+    public void deleteUser(Long id) {
         if (!users.containsKey(id)) {
             String message = "Пользователь с id " + id + " не найден";
             log.error(message);
@@ -75,7 +76,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User addFriend(int id, int friendId) {
+    public User addFriend(Long id, Long friendId) {
         if (friends.containsKey(id)) {
             friends.put(id, friendId);
         } else {
@@ -87,7 +88,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User removeFriend(int id, int friendId) {
+    public User removeFriend(Long id, Long friendId) {
         if (friends.containsKey(id)) {
             friends.remove(id, friendId);
         } else {
@@ -99,11 +100,11 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<User> getFriends(int id) {
+    public List<User> getFriends(Long id) {
         List<User> friendsList = new ArrayList<>();
         if (friends.containsKey(id)) {
-            for (Map.Entry<Integer, Integer> entry : friends.entrySet()) {
-                Integer uId = entry.getKey();
+            for (Map.Entry<Long, Long> entry : friends.entrySet()) {
+                Long uId = entry.getKey();
                 if (uId.equals(id)) {
                     User friend = getById(entry.getValue());
                     friendsList.add(friend);
@@ -112,4 +113,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return friendsList;
     }
+
+    @Override
+    public boolean isContains(Long id) { return false; }
 }

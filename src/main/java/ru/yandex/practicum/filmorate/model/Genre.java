@@ -14,4 +14,7 @@ public class Genre {
     @NotNull
     private String name;
 
+    public Genre(int id) {
+        this.id = id;
+    }
 }
