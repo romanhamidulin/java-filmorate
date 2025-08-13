@@ -31,25 +31,21 @@ public class UserControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        user.setId(1L);
         user.setLogin("test");
         user.setName("testName");
         user.setEmail("test@ya.ru");
         user.setBirthday(LocalDate.now().minusYears(2));
 
-        updatedUser.setId(1L);
         updatedUser.setLogin("test1");
         updatedUser.setName("testName1");
         updatedUser.setEmail("test@ya.ru");
         updatedUser.setBirthday(LocalDate.now().minusYears(3));
 
-        friend.setId(3L);
         friend.setLogin("test2");
         friend.setName("testName2");
         friend.setEmail("test2@ya.ru");
         friend.setBirthday(LocalDate.now().minusYears(4));
 
-        friendOfBoth.setId(4L);
         friendOfBoth.setLogin("test3");
         friendOfBoth.setName("test3Name");
         friendOfBoth.setEmail("test3@ya.ru");

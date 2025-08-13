@@ -137,7 +137,7 @@ public class UserDbService {
             log.error(message);
             throw new NotFoundException(message);
         }
-        if (userId == friendId) {
+        if (userId.equals(friendId)) {
             String message = format("Невозможно добавить в друзья самого себя", userId);
             log.error(message);
             throw new ObjectAlreadyExistsException(message);
@@ -148,6 +148,7 @@ public class UserDbService {
             throw new NotFoundException(message);
         }
     }
+
     private void checkIfNotFriend(Long userId, Long friendId) {
         if (!userStorage.isContains(userId)) {
             String message = format("Не найден пользователь с таким id %d", userId);
@@ -159,8 +160,8 @@ public class UserDbService {
             log.error(message);
             throw new NotFoundException(message);
         }
-        if (userId == friendId) {
-            String message = format("Невозможно удалить из в друзья самого себя", userId);
+        if (userId.equals(friendId)) {
+            String message = format("Невозможно удалить из друзей самого себя", userId);
             log.error(message);
             throw new ObjectAlreadyExistsException(message);
         }
