@@ -10,9 +10,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserDbService;
 
@@ -62,20 +60,20 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUser_shouldCreateUser() {
+    public void createUser() {
         userService.createUser(user);
 
         Assertions.assertFalse(userService.getAllUsers().isEmpty());
     }
 
     @Test
-    public void createUser_shouldNotCreateUserWithId1() {
+    public void createUserWithSameId() {
         userService.createUser(updatedUser);
         Assertions.assertThrows(DuplicateKeyException.class, () -> userService.createUser(updatedUser));
     }
 
     @Test
-    public void updateUser_shouldUpdateUser() {
+    public void updateUser() {
         User thisUser = userService.createUser(user);
         User thisUpdatedUser = userService.updateUser(thisUser);
 
@@ -83,12 +81,12 @@ public class UserControllerTest {
     }
 
     @Test
-    public void updateUser_shouldNotUpdateUserIfNotExists() {
-        Assertions.assertThrows(ObjectNotFoundException.class, () -> userService.updateUser(user));
+    public void updateNotExistUser() {
+        Assertions.assertThrows(NotFoundException.class, () -> userService.updateUser(user));
     }
 
     @Test
-    public void getUserById_shouldReturnUserWithId1() {
+    public void getUserById() {
         User newUser = userService.createUser(user);
         User thisUser = userService.getUserById(newUser.getId());
 
@@ -96,12 +94,12 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getUserById_shouldNotReturnUserIfNotExists() {
-        Assertions.assertThrows(ObjectNotFoundException.class, () -> userService.getUserById(1L));
+    public void getUserByIfNotExistsId() {
+        Assertions.assertThrows(NotFoundException.class, () -> userService.getUserById(1L));
     }
 
     @Test
-    public void addFriend_shouldAddFriend() {
+    public void addFriend() {
         User thisUser = userService.createUser(user);
         User thisFriend = userService.createUser(friend);
         userService.addFriend(thisUser.getId(), thisFriend.getId());
@@ -122,14 +120,14 @@ public class UserControllerTest {
     }
 
     @Test
-    public void addFriend_shouldThrowExceptionIfAddingYourselfIntoAFriendsList() {
+    public void addFriendYourSelf() {
         User thisUser = userService.createUser(user);
         Assertions.assertThrows(ObjectAlreadyExistsException.class,
                 () -> userService.addFriend(thisUser.getId(), thisUser.getId()));
     }
 
     @Test
-    public void deleteFriend_shouldDeleteFriend() {
+    public void deleteFriend() {
         User thisUser = userService.createUser(user);
         User thisFriend = userService.createUser(friend);
         userService.addFriend(thisUser.getId(), thisFriend.getId());
@@ -142,18 +140,18 @@ public class UserControllerTest {
     }
 
     @Test
-    public void deleteFriend_shouldThrowExceptionIfNotFriends() {
+    public void deleteIfNotFriend() {
         User thisUser = userService.createUser(user);
         User thisFriend = userService.createUser(friend);
 
-        Assertions.assertThrows(ValidationException.class,
+        Assertions.assertThrows(NoContentException.class,
                 () -> userService.deleteFriend(thisUser.getId(), thisFriend.getId()));
-        Assertions.assertThrows(ValidationException.class,
+        Assertions.assertThrows(NoContentException.class,
                 () -> userService.deleteFriend(thisFriend.getId(), thisUser.getId()));
     }
 
     @Test
-    public void getFriendsList_shouldReturnFriendsListWithSize1() {
+    public void getFriendsList() {
         User thisUser = userService.createUser(user);
         User thisFriend = userService.createUser(friend);
         userService.addFriend(thisUser.getId(), thisFriend.getId());
@@ -164,7 +162,7 @@ public class UserControllerTest {
     }
 
         @Test
-    public void getCommonFriends_shouldReturnAnEmptyListsOfCommonFriends() {
+    public void getCommonFriends() {
         User thisUser = userService.createUser(user);
         User thisFriend = userService.createUser(friend);
         userService.addFriend(thisUser.getId(), thisFriend.getId());

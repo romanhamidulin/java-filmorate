@@ -19,7 +19,7 @@ public class MpaStorage implements MpaDao {
     @Override
     public Mpa getMpaById(int id) {
         log.debug("рейтинг по id({})", id);
-        Mpa mpa = jdbcTemplate.queryForObject("SELECT id, name FROM film_mpa WHERE id=?",
+        Mpa mpa = jdbcTemplate.queryForObject("SELECT *FROM film_mpa WHERE id=?",
                 new MpaMapper(), id);
         log.trace("рейтинг MPA по id {} возвращен", mpa);
         return mpa;
@@ -28,7 +28,7 @@ public class MpaStorage implements MpaDao {
     @Override
     public List<Mpa> getMpaList() {
         log.debug("список рейтингов()");
-        List<Mpa> mpaList = jdbcTemplate.query("SELECT id, name FROM film_mpa ORDER BY id",
+        List<Mpa> mpaList = jdbcTemplate.query("SELECT * FROM film_mpa ORDER BY id",
                 new MpaMapper());
         log.trace("Весь список рейтингов: {}", mpaList);
         return mpaList;

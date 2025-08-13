@@ -5,16 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.storage.mapper.GenreMapper;
 
 import java.sql.Date;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -41,12 +39,12 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration().toMinutes(),
                 film.getMpa().getId());
         Film thisFilm = jdbcTemplate.queryForObject(
-                "SELECT id, name, description, release_date, duration, mpa_id FROM films WHERE name=? "
+                "SELECT * FROM films WHERE name=? "
                         + "AND description=? AND release_date=? AND duration=? AND mpa_id=?",
                 new FilmMapper(), film.getName(),
                 film.getDescription(),
                 Date.valueOf(film.getReleaseDate()),
-                film.getDuration(),
+                film.getDuration().toMinutes(),
                 film.getMpa().getId());
         log.trace("Фильм {} добавлен в БД", thisFilm);
         return thisFilm;
@@ -60,7 +58,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getName(),
                 film.getDescription(),
                 Date.valueOf(film.getReleaseDate()),
-                film.getDuration(),
+                film.getDuration().toMinutes(),
                 film.getMpa().getId(),
                 film.getId());
         Film thisFilm = getById(film.getId());
@@ -123,11 +121,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Set<Genre> getGenres(Long filmId) {
+    public LinkedHashSet<Genre> getGenres(Long filmId) {
         log.debug("получить жанры({})", filmId);
-        Set<Genre> genres = new HashSet<>(jdbcTemplate.query(
-                "SELECT f.genre_id, g.name FROM film_genre AS f " +
-                        "LEFT OUTER JOIN genre AS g ON f.genre_id = g.id WHERE f.film_id=?",
+        LinkedHashSet<Genre> genres = new LinkedHashSet<>(jdbcTemplate.query(
+                "SELECT f.genre_id as id, g.name as name FROM film_genre AS f LEFT OUTER JOIN genre AS g ON f.genre_id = g.id WHERE f.film_id=? ORDER BY g.id",
                 new GenreMapper(), filmId));
         log.trace("Жанры для фильма {} возвращены", filmId);
         return genres;

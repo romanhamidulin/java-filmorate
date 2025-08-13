@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.controller.DurationSerializer;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Data
@@ -38,7 +39,7 @@ public class Film {
 
     private Mpa mpa;
 
-    private Set<Genre> genres = new HashSet<>();
+    private Set<Genre> genres = new LinkedHashSet<>();
 
 }
 

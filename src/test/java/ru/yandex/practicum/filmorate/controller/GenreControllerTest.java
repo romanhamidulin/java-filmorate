@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.GenreDbService;
 
@@ -27,7 +27,7 @@ public class GenreControllerTest {
 
     @Test
     public void getGenreByIdNonExists() {
-        Assertions.assertThrows(ObjectNotFoundException.class,
+        Assertions.assertThrows(NotFoundException.class,
                 () -> genreService.getGenreById(134));
     }
 

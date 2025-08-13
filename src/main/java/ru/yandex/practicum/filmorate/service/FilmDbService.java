@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -18,7 +18,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,7 +68,7 @@ public class FilmDbService {
 
     public Film getById(Long filmId) {
         if (!filmStorage.isContains(filmId)) {
-            throw new ObjectNotFoundException("Не найден фильм с таким id " + filmId);
+            throw new NotFoundException("Не найден фильм с таким id " + filmId);
         }
         Film film = filmStorage.getById(filmId);
         film.setGenres(filmStorage.getGenres(filmId));
@@ -99,7 +98,7 @@ public class FilmDbService {
     public void deleteFilm(Long id) {
         Film film = filmStorage.getById(id);
         if (film == null) {
-            throw new ObjectNotFoundException("Фильм с id " + id + " не найден");
+            throw new NotFoundException("Фильм с id " + id + " не найден");
         }
         log.info("Фильм удален.");
         filmStorage.deleteFilm(id);
@@ -110,9 +109,9 @@ public class FilmDbService {
         if (likeDao.isLiked(filmId, userId)) {
             String message = format("Пользователь с id %d уже лайкнул фильм %d", userId, filmId);
             log.error(message);
-            throw new ObjectAlreadyExistsException(message);
+            throw new NotFoundException(message);
         }
-        likeDao.removeLike(filmId, userId);
+        likeDao.addlike(filmId, userId);
     }
 
     public void removeLike(Long filmId, Long userId) {
@@ -120,22 +119,22 @@ public class FilmDbService {
         if (!likeDao.isLiked(filmId, userId)) {
             String message = format("Пользователь с id %d не лайкал фильм %d", userId, filmId);
             log.error(message);
-            throw new ObjectAlreadyExistsException(message);
+            throw new NotFoundException(message);
         }
         likeDao.removeLike(filmId, userId);
     }
 
     private void checkIfNotExists(Film film) {
         if (!filmStorage.isContains(film.getId())) {
-                throw new ObjectNotFoundException(format("Фильм с идентификатором %d не был найден", film.getId()));
+                throw new NotFoundException(format("Фильм с идентификатором %d не был найден", film.getId()));
             }
 
         if (!mpaDao.isContains(film.getMpa().getId())) {
-            throw new ObjectNotFoundException(format("Не найден MPA для фильма с идентификатором %d", film.getId()));
+            throw new NotFoundException(format("Не найден MPA для фильма с идентификатором %d", film.getId()));
         }
         for (Genre genre : film.getGenres()) {
             if (!genreDao.isContains(genre.getId())) {
-                throw new ObjectNotFoundException("Не удалось найти жанр фильма с идентификатором" + film.getId());
+                throw new NotFoundException("Не удалось найти жанр фильма с идентификатором" + film.getId());
             }
         }
     }
@@ -143,14 +142,13 @@ public class FilmDbService {
     private void checkIfExists(Film film) {
        if (filmStorage.isContains(film.getId())) {
                 throw new ObjectAlreadyExistsException(format("Фильм с идентификатором %d уже существует", film.getId()));
-
         }
         if (!mpaDao.isContains(film.getMpa().getId())) {
-            throw new ObjectNotFoundException(format("Не найден MPA для фильма с идентификатором %d", film.getId()));
+            throw new NotFoundException(format("Не найден MPA для фильма с идентификатором %d", film.getId()));
         }
         for (Genre genre : film.getGenres()) {
             if (!genreDao.isContains(genre.getId())) {
-                throw new ObjectNotFoundException("Не удалось найти жанр фильма с идентификатором" + film.getId());
+                throw new NotFoundException("Не удалось найти жанр фильма с идентификатором" + film.getId());
             }
         }
     }
@@ -188,11 +186,11 @@ public class FilmDbService {
     private void likeChecker(Long filmId, Long userId) {
         if (!filmStorage.isContains(filmId)) {
             String message = "Не найден фильм с id " + filmId;
-            throw new ObjectNotFoundException(message);
+            throw new NotFoundException(message);
         }
         if (!userStorage.isContains(userId)) {
             String message = "Не найден пользователь с id " + userId;
-            throw new ObjectNotFoundException(format("Unable to find a user with id %d", userId));
+            throw new NotFoundException(format("Unable to find a user with id %d", userId));
         }
     }
 }

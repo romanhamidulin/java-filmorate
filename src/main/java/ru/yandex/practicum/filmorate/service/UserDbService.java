@@ -4,9 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.friends.FriendsDao;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
@@ -32,7 +30,6 @@ public class UserDbService {
     }
 
     public User createUser(User user) {
-        var test = user.getId();
         if (userStorage.isContains(user.getId())) {
             throw new ObjectAlreadyExistsException(format("Пользователь с таким id %d уже существует", user.getId()));
         }
@@ -43,7 +40,7 @@ public class UserDbService {
 
     public User updateUser(User user) {
         if (!userStorage.isContains(user.getId())) {
-            throw new ObjectNotFoundException("Пользователь для обновления не найден");
+            throw new NotFoundException("Пользователь для обновления не найден");
         }
         validateUser(user);
         return userStorage.updateUser(user);
@@ -51,7 +48,7 @@ public class UserDbService {
 
     public User getUserById(Long id) {
         if (!userStorage.isContains(id)) {
-            throw new ObjectNotFoundException(format("Не найден пользователь с таким id %d", id));
+            throw new NotFoundException(format("Не найден пользователь с таким id %d", id));
         }
         return userStorage.getById(id);
     }
@@ -62,7 +59,7 @@ public class UserDbService {
 
     public void deleteUser(Long id) {
         if (!userStorage.isContains(id)) {
-            throw new ObjectNotFoundException(format("Не найден пользователь с таким id %d", id));
+            throw new NotFoundException(format("Не найден пользователь с таким id %d", id));
         }
         log.info("Пользователь удален.");
         userStorage.deleteUser(id);
@@ -81,7 +78,7 @@ public class UserDbService {
 
     public List<User> getFriends(Long id) {
         if (!userStorage.isContains(id)) {
-            throw new ObjectNotFoundException(format("Не найден пользователь с таким id %d", id));
+            throw new NotFoundException(format("Не найден пользователь с таким id %d", id));
         }
         List<User> friends = friendshipDao.getFriends(id).stream()
                 .mapToLong(Long::valueOf)
@@ -95,15 +92,15 @@ public class UserDbService {
         if (!userStorage.isContains(userId)) {
             String message = format("Не найден пользователь с таким id %d", userId);
             log.error(message);
-            throw new ObjectNotFoundException(message);
+            throw new NotFoundException(message);
         }
         if (!userStorage.isContains(friendId)) {
             String message = format("Не найден пользователь с таким id %d", friendId);
             log.error(message);
-            throw new ObjectNotFoundException(message);
+            throw new NotFoundException(message);
         }
         if (userId == friendId) {
-            throw new ObjectNotFoundException("Невозможно получить список друзей " + userId);
+            throw new NotFoundException("Невозможно получить список друзей " + userId);
         }
         List<User> userFriends = getFriends(userId);
         List<User> friendFriends = getFriends(friendId);
@@ -133,12 +130,12 @@ public class UserDbService {
         if (!userStorage.isContains(userId)) {
             String message = format("Не найден пользователь с таким id %d", userId);
             log.error(message);
-            throw new ObjectNotFoundException(message);
+            throw new NotFoundException(message);
         }
         if (!userStorage.isContains(friendId)) {
             String message = format("Не найден пользователь с таким id %d", friendId);
             log.error(message);
-            throw new ObjectNotFoundException(message);
+            throw new NotFoundException(message);
         }
         if (userId == friendId) {
             String message = format("Невозможно добавить в друзья самого себя", userId);
@@ -148,29 +145,29 @@ public class UserDbService {
         if (friendshipDao.isFriend(userId, friendId)) {
             String message = format("Пользователь %d и %d уже дружат", userId, friendId);
             log.error(message);
-            throw new ValidationException(message);
+            throw new NotFoundException(message);
         }
     }
     private void checkIfNotFriend(Long userId, Long friendId) {
         if (!userStorage.isContains(userId)) {
             String message = format("Не найден пользователь с таким id %d", userId);
             log.error(message);
-            throw new ObjectNotFoundException(message);
+            throw new NotFoundException(message);
         }
         if (!userStorage.isContains(friendId)) {
             String message = format("Не найден пользователь с таким id %d", friendId);
             log.error(message);
-            throw new ObjectNotFoundException(message);
+            throw new NotFoundException(message);
         }
         if (userId == friendId) {
-            String message = format("Невозможно добавить в друзья самого себя", userId);
+            String message = format("Невозможно удалить из в друзья самого себя", userId);
             log.error(message);
             throw new ObjectAlreadyExistsException(message);
         }
         if (!friendshipDao.isFriend(userId, friendId)) {
             String message = format("Пользователь %d и %d не дружат", userId, friendId);
             log.error(message);
-            throw new ValidationException(message);
+            throw new NoContentException(message);
         }
     }
 }

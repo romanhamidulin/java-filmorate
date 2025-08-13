@@ -31,11 +31,13 @@ public class FriendsStorage implements FriendsDao {
     public void deleteFriend(Long userId, Long friendId) {
         log.debug("удалить друзей ({}, {})", userId, friendId);
         Friendship friendship = Objects.requireNonNull(getFriend(userId, friendId));
-        jdbcTemplate.update("DELETE FROM user_friends WHERE user_id=? AND friend_id=?", userId, friendId);
         if (friendship.isFriend()) {
             jdbcTemplate.update("UPDATE user_friends SET isFriend=false WHERE user_id=? AND friend_id=?",
                     userId, friendId);
             log.debug("Пользователи {} и {} больше не друзья", userId, friendId);
+        }
+        else {
+            jdbcTemplate.update("DELETE FROM user_friends WHERE user_id=? AND friend_id=?", userId, friendId);
         }
         log.trace("Список без друзей: {}", friendship);
     }
