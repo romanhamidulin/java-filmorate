@@ -15,7 +15,7 @@ import java.util.Map;
 @Component("InMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
-    private final Map<Long, Long> friends= new HashMap<>();
+    private final Map<Long, Long> friends = new HashMap<>();
     private Long idCounter = 1L;
 
     @Override
@@ -115,5 +115,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public boolean isContains(Long id) { return false; }
+    public boolean isContains(Long id) {
+        return false;
+    }
 }
