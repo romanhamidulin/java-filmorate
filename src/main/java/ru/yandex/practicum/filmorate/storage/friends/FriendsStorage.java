@@ -35,8 +35,7 @@ public class FriendsStorage implements FriendsDao {
             jdbcTemplate.update("UPDATE user_friends SET isFriend=false WHERE user_id=? AND friend_id=?",
                     userId, friendId);
             log.debug("Пользователи {} и {} больше не друзья", userId, friendId);
-        }
-        else {
+        } else {
             jdbcTemplate.update("DELETE FROM user_friends WHERE user_id=? AND friend_id=?", userId, friendId);
         }
         log.trace("Список без друзей: {}", friendship);
