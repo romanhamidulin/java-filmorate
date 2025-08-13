@@ -75,7 +75,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (likes.containsKey(id)) {
             likes.remove(id, userId);
         } else {
-            String message = "Невозможно удалить лайк пользователя" +userId +"у фильма " + id ;
+            String message = "Невозможно удалить лайк пользователя" + userId + "у фильма " + id;
             log.error(message);
             throw new NotFoundException(message);
         }
@@ -109,5 +109,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public boolean isContains(Long id) { return false; }
+    public boolean isContains(Long id) {
+        return false;
+    }
 }
