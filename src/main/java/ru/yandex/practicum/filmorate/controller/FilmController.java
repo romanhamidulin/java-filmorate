@@ -23,11 +23,13 @@ public class FilmController {
 
     @GetMapping
     public List<Film> getAllFilms() {
-        return filmService.getAllFilms(); }
+        return filmService.getAllFilms();
+    }
 
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
-        return filmService.addFilm(film); }
+        return filmService.addFilm(film);
+    }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
