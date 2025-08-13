@@ -31,7 +31,7 @@ public class FilmControllerTest {
     private final FilmDbService filmService;
     private final UserDbService userService;
     private final JdbcTemplate jdbcTemplate;
-    private final User user = new User();;
+    private final User user = new User();
     private final Film film = new Film();
     private final Film updatedFilm = new Film();
     private final Film oneMoreFilm = new Film();
