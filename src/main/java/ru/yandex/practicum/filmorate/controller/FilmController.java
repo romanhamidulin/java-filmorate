@@ -17,22 +17,28 @@ public class FilmController {
 
     @Autowired
     public FilmController(FilmDbService filmService) {
+
         this.filmService = filmService;
     }
 
     @GetMapping
-    public List<Film> getAllFilms() { return filmService.getAllFilms(); }
+    public List<Film> getAllFilms() {
+        return filmService.getAllFilms(); }
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film) { return filmService.addFilm(film); }
+    public Film addFilm(@RequestBody Film film) {
+        return filmService.addFilm(film); }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
+
         return filmService.updateFilm(film);
     }
 
     @DeleteMapping
-    public void deleteFilm(@RequestBody Long filmId) { filmService.deleteFilm(filmId); }
+    public void deleteFilm(@RequestBody Long filmId) {
+        filmService.deleteFilm(filmId);
+    }
 
     @GetMapping("/{id}")
     public Film getFilm(@PathVariable Long id) {
