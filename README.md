@@ -86,11 +86,3 @@ SELECT*
 FROM films
 WHERE film_id = 10.
 
-
-Получить тестовое описание жанра по id фильма = 1
-SELECT f.genre_id as id, g.name as name FROM film_genre AS f
-LEFT OUTER JOIN genre AS g ON f.genre_id = g.id WHERE f.film_id=1 ORDER BY g.id
-
-Вставить лайк фильму с ID = 10 и пользователь с ID = 14
-
-INSERT INTO film_likes (film_id, user_id) VALUES (1, 14)
