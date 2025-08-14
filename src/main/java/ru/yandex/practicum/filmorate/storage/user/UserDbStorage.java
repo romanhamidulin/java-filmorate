@@ -23,6 +23,7 @@ public class UserDbStorage extends BaseStorage<User> implements UserStorage {
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
     }
+
     @Override
     public User createUser(User user) {
         log.debug("создание пользователя({})", user);
