@@ -30,4 +30,11 @@ public class GlobalExceptionHandler {
         log.warn("Исключение со стороны сервера: {}", e.getMessage());
         return new ErrorResponse("Исключение со стороны сервера", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ErrorResponse handleNoContentException(NoContentException e) {
+        log.warn("Нет содержимого: {}", e.getMessage());
+        return new ErrorResponse("Нет содержимого", e.getMessage());
+    }
 }
