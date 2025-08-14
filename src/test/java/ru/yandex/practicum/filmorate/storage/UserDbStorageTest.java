@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.User;
@@ -19,7 +18,7 @@ import java.time.LocalDate;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class UserControllerTest {
+public class UserDbStorageTest {
     private final UserDbService userService;
     private final JdbcTemplate jdbcTemplate;
 
@@ -64,7 +63,7 @@ public class UserControllerTest {
     @Test
     public void createUserWithSameId() {
         userService.createUser(updatedUser);
-        Assertions.assertThrows(DuplicateKeyException.class, () -> userService.createUser(updatedUser));
+        Assertions.assertThrows(ObjectAlreadyExistsException.class, () -> userService.createUser(updatedUser));
     }
 
     @Test
@@ -136,13 +135,10 @@ public class UserControllerTest {
 
     @Test
     public void deleteIfNotFriend() {
-        User thisUser = userService.createUser(user);
-        User thisFriend = userService.createUser(friend);
-
-        Assertions.assertThrows(NoContentException.class,
-                () -> userService.deleteFriend(thisUser.getId(), thisFriend.getId()));
-        Assertions.assertThrows(NoContentException.class,
-                () -> userService.deleteFriend(thisFriend.getId(), thisUser.getId()));
+        Assertions.assertThrows(NotFoundException.class,
+                () -> userService.deleteFriend(user.getId(), friend.getId()));
+        Assertions.assertThrows(NotFoundException.class,
+                () -> userService.deleteFriend(user.getId(), friend.getId()));
     }
 
     @Test

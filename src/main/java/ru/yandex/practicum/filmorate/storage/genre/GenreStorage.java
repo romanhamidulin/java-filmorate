@@ -1,48 +1,50 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.mapper.GenreMapper;
+import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
-@Component
-@RequiredArgsConstructor
-public class GenreStorage implements GenreDao {
-    private final JdbcTemplate jdbcTemplate;
+@Repository
+public class GenreStorage extends BaseStorage<Genre> implements GenreDao {
+
+    private static final String FIND_ALL_QUERY = "select * from genre order by id";
+    private static final String FIND_BY_ID_QUERY = "select * from genre where id = ? order by id";
+    private static final String FIND_FILM_GENRES_BY_ID_QUERY = "SELECT f.genre_id as id, g.name as name FROM film_genre AS f LEFT OUTER JOIN genre " +
+            "AS g ON f.genre_id = g.id WHERE f.film_id=? ORDER BY g.id";
+
+    public GenreStorage(JdbcTemplate jdbc, RowMapper<Genre> mapper) {
+        super(jdbc, mapper);
+    }
 
     @Override
-    public Genre getGenreById(int id) {
+    public Optional<Genre> getGenreById(int id) {
         log.debug("жанр по id({})", id);
-        Genre genre = jdbcTemplate.queryForObject("SELECT * FROM genre WHERE id=?",
-                new GenreMapper(), id);
+        Optional<Genre> genre = findOne(FIND_BY_ID_QUERY, id);;
         log.trace("Жанс с id {} возвращен", id);
         return genre;
     }
 
     @Override
-    public List<Genre> getGenres() {
+    public List<Genre> getAllGenres() {
         log.debug("все жанры()");
-        List<Genre> genreList = jdbcTemplate.query("SELECT * FROM genre ORDER BY id",
-                new GenreMapper());
+        List<Genre> genreList = findMany(FIND_ALL_QUERY);;
         log.trace("Возвращены все жанры: {}", genreList);
         return genreList;
     }
 
     @Override
-    public boolean isContains(int id) {
-        try {
-            getGenreById(id);
-            log.trace("Жанр с id {} найден", id);
-            return true;
-        } catch (EmptyResultDataAccessException exception) {
-            log.trace("Жанр с таким  {} не найден", id);
-            return false;
-        }
+    public Set<Genre> getGenresByFilmId(Long filmId) {
+        return new LinkedHashSet<>(findMany(FIND_FILM_GENRES_BY_ID_QUERY, filmId));
     }
+
+
 }

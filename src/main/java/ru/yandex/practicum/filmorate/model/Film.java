@@ -30,7 +30,6 @@ public class Film {
     private LocalDate releaseDate;
 
     @NotNull
-    //@Positive
     @JsonSerialize(using = DurationSerializer.class)
     @JsonDeserialize(using = DurationDeserializer.class)
     private Duration duration;

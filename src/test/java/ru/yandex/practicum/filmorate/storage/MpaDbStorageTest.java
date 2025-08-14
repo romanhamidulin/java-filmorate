@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +14,7 @@ import ru.yandex.practicum.filmorate.service.MpaDbService;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class MpaControllerTest {
+public class MpaDbStorageTest {
     private final MpaDbService mpaService;
     private final Mpa g = new Mpa(1, "G");
     private final Mpa pg = new Mpa(2, "PG");
@@ -40,7 +40,7 @@ public class MpaControllerTest {
 
     @Test
     public void getMpaList() {
-        Assertions.assertTrue(mpaService.getMpaList().contains(pg));
-        Assertions.assertTrue(mpaService.getMpaList().contains(r));
+        Assertions.assertTrue(mpaService.getAllMpa().contains(pg));
+        Assertions.assertTrue(mpaService.getAllMpa().contains(r));
     }
 }

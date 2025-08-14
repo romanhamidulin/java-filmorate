@@ -46,6 +46,6 @@ CREATE TABLE IF NOT EXISTS film_likes (
 CREATE TABLE IF NOT EXISTS user_friends (
     user_id BIGINT  NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     friend_id BIGINT  NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    isFriend BOOLEAN NOT NULL,
+    isFriend BOOLEAN DEFAULT false,
     PRIMARY KEY (user_id, friend_id)
 );

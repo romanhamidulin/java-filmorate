@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +14,7 @@ import ru.yandex.practicum.filmorate.service.GenreDbService;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class GenreControllerTest {
+public class GenreDbStorageTest {
     private final GenreDbService genreService;
     private final Genre comedy = new Genre(1, "Комедия");
     private final Genre drama = new Genre(2, "Драма");
@@ -33,9 +33,9 @@ public class GenreControllerTest {
 
     @Test
     public void getListGenres() {
-        Assertions.assertTrue(genreService.getGenres().contains(drama));
-        Assertions.assertTrue(genreService.getGenres().contains(comedy));
-        Assertions.assertTrue(genreService.getGenres().contains(cartoon));
+        Assertions.assertTrue(genreService.getAllGenres().contains(drama));
+        Assertions.assertTrue(genreService.getAllGenres().contains(comedy));
+        Assertions.assertTrue(genreService.getAllGenres().contains(cartoon));
     }
 
 }

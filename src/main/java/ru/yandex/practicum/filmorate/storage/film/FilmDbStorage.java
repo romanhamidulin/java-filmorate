@@ -1,152 +1,124 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.storage.mapper.GenreMapper;
+import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
 import java.sql.Date;
-import java.util.LinkedHashSet;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
-@Component("FilmDbStorage")
-@RequiredArgsConstructor
-public class FilmDbStorage implements FilmStorage {
+@Repository
+public class FilmDbStorage extends BaseStorage<Film> implements FilmStorage {
 
-    private final JdbcTemplate jdbcTemplate;
-    private static final String FIND_ALL_QUERY = "SELECT * FROM films";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM films WHERE id = ?";
-    private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?)";
-    private static final String UPDATE_QUERY = "UPDATE films set name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
+    private static final String FIND_ALL_QUERY = "select f.*, m.name from films f left join " +
+            "film_mpa m on f.mpa_id = m.id";
+    private static final String FIND_BY_ID_QUERY = "select f.*, m.name as name from films f " +
+            "left join film_mpa m on f.mpa_id = m.id where f.id = ?";
+    private static final String INSERT_QUERY = "insert into films(name, description, release_date, duration, mpa_id) " +
+            "values (?, ?, ?, ?, ?)";
+    private static final String UPDATE_QUERY = "update films set name = ?, description = ?, release_date = ?, " +
+            "duration = ?, mpa_id = ? WHERE id = ?";
+    private static final String TOP_POPULAR_QUERY = "select f.*, m.name from films f " +
+            "left join (select film_id, count(distinct user_id) as likes_count from film_likes group by film_id) l on f.id = l.film_id " +
+            "left join film_mpa m on f.mpa_id = m.id order by likes_count desc limit ?";
     private static final String DELETE_GENRE_FILM_QUERY = "delete from film_genre where film_id = ?";
-    private static final String INSERT_GENRE_FILM_QUERY = "insert into film_genre (film_id, genre_id) values(?, ?)";
+    private static final String INSERT_GENRE_FILM_QUERY = "insert into film_genre(film_id, genre_id) values(?, ?)";
+
+    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
+        super(jdbc, mapper);
+    }
 
     @Override
     public Film addFilm(Film film) {
         log.debug("создаем фильм({})", film);
-        jdbcTemplate.update(
+        long id = insert(
                 INSERT_QUERY,
                 film.getName(),
                 film.getDescription(),
                 Date.valueOf(film.getReleaseDate()),
                 film.getDuration().toMinutes(),
-                film.getMpa().getId());
-        Film thisFilm = jdbcTemplate.queryForObject(
-                "SELECT * FROM films WHERE name=? "
-                        + "AND description=? AND release_date=? AND duration=? AND mpa_id=?",
-                new FilmMapper(), film.getName(),
-                film.getDescription(),
-                Date.valueOf(film.getReleaseDate()),
-                film.getDuration().toMinutes(),
-                film.getMpa().getId());
-        log.trace("Фильм {} добавлен в БД", thisFilm);
-        return thisFilm;
+                film.getMpa().getId()
+        );
+        film.setId(id);
+        updateGenres(film.getGenres(), film.getId());
+        log.trace("Фильм {} добавлен в БД", film);
+        return film;
     }
 
     @Override
     public Film updateFilm(Film film) {
         log.debug("обновляем фильм({}).", film);
-        jdbcTemplate.update(
+        update(
                 UPDATE_QUERY,
                 film.getName(),
                 film.getDescription(),
                 Date.valueOf(film.getReleaseDate()),
                 film.getDuration().toMinutes(),
                 film.getMpa().getId(),
-                film.getId());
-        Film thisFilm = getById(film.getId());
-        log.trace("Фильм {} обновлен в БД", thisFilm);
-        return thisFilm;
+                film.getId()
+        );
+        updateGenres(film.getGenres(), film.getId());
+        return film;
     }
 
     @Override
-    public Film getById(Long id) {
+    public Optional<Film>  getById(Long id) {
         log.debug("получаем фильм по id({})", id);
-        Film thisFilm = jdbcTemplate.queryForObject(
-                FIND_BY_ID_QUERY,
-                new FilmMapper(), id);
+        Optional<Film> thisFilm = findOne(FIND_BY_ID_QUERY, id);
         log.trace("Фильм {} возвращен", thisFilm);
         return thisFilm;
     }
 
     @Override
     public void deleteFilm(Long id) {
-        var delete = this.jdbcTemplate.update(
-                "DELETE FROM films WHERE id = ?",
+        delete("DELETE FROM films WHERE id = ?",
                 id);
     }
 
     @Override
     public List<Film> getAllFilms() {
         log.debug("получаем все фильмы()");
-        List<Film> films = jdbcTemplate.query(
-                FIND_ALL_QUERY, new FilmMapper());
+        List<Film> films = findMany(FIND_ALL_QUERY);
         log.trace("Список всех фильмов в БД: {}", films);
         return films;
     }
 
     @Override
-    public Film addLike(Long filmId, Long userId) {
-        return getById(filmId);
+    public List<Film> getTopPopularFilms(int count) {
+        return findMany(TOP_POPULAR_QUERY, count);
     }
 
-    @Override
-    public Film removeLike(Long filmId, Long userId) {
-        return getById(filmId);
-    }
+    public void updateGenres(Set<Genre> genres, Long filmId) {
+        boolean isDeleted = delete(DELETE_GENRE_FILM_QUERY, filmId);
+        if (!genres.isEmpty()) {
+            List<Genre> genresList = genres.stream().toList();
+            jdbc.batchUpdate(INSERT_GENRE_FILM_QUERY, new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    ps.setLong(1, filmId);
+                    ps.setInt(2, genresList.get(i).getId());
+                }
 
-    @Override
-    public Film addGenres(Long filmId, Set<Genre> genres) {
-        log.debug("Добавить жанры({}, {})", filmId, genres);
-        for (Genre genre : genres) {
-            jdbcTemplate.update(INSERT_GENRE_FILM_QUERY, filmId, genre.getId());
-            log.trace("Жанры добавили к фидьму {}", filmId);
+                @Override
+                public int getBatchSize() {
+                    return genresList.size();
+                }
+            });
         }
-        return getById(filmId);
-    }
-
-    @Override
-    public Film updateGenres(Long filmId, Set<Genre> genres) {
-        log.debug("обновить жанры({}, {})", filmId, genres);
-        deleteGenres(filmId);
-        addGenres(filmId, genres);
-        return getById(filmId);
-    }
-
-    @Override
-    public LinkedHashSet<Genre> getGenres(Long filmId) {
-        log.debug("получить жанры({})", filmId);
-        LinkedHashSet<Genre> genres = new LinkedHashSet<>(jdbcTemplate.query(
-                "SELECT f.genre_id as id, g.name as name FROM film_genre AS f LEFT OUTER JOIN genre AS g ON f.genre_id = g.id WHERE f.film_id=? ORDER BY g.id",
-                new GenreMapper(), filmId));
-        log.trace("Жанры для фильма {} возвращены", filmId);
-        return genres;
-    }
-
-    @Override
-    public Film deleteGenres(Long filmId) {
-        log.debug("удаляем жанры({})", filmId);
-        jdbcTemplate.update(DELETE_GENRE_FILM_QUERY, filmId);
-        log.trace("Удалены все жанры для фильма {}", filmId);
-        return getById(filmId);
     }
 
     @Override
     public boolean isContains(Long id) {
-        try {
-            getById(id);
-            log.trace("Такой фильм найден {}", id);
-            return true;
-        } catch (EmptyResultDataAccessException exception) {
-            log.trace("Не найдено фильмов в таким id {}", id);
-            return false;
-        }
+        return getById(id).isPresent();
     }
 }

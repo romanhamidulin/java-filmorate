@@ -2,74 +2,56 @@ package ru.yandex.practicum.filmorate.storage.friends;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Friendship;
-import ru.yandex.practicum.filmorate.storage.mapper.FriendshipMapper;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.mapper.UserMapper;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class FriendsStorage implements FriendsDao {
+
+    private static final String FIND_BY_ID_QUERY = "select u.* from user_friends f left join users u on f.friend_id = u.id where f.user_id = ?";
+    private static final String FIND_COMMON_BY_ID_QUERY = "select count(*) from user_friends where user_id = ? and friend_id = ?";
+    private static final String GET_COMMON_FRIENDS = "select u.* from (select * from user_friends where user_id = ?) f1 " +
+            "join (select * from user_friends where user_id = ?) f2 on f1.friend_id = f2.friend_id join users u on f1.friend_id = u.id";
+    private static final String INSERT_QUERY = "insert into user_friends(user_id, friend_id) values (?, ?)";
+    private static final String DELETE_QUERY = "delete from user_friends where user_id = ? and friend_id = ?";
+    private static final String UPDATE_FRIENDSHIP_QUERY = "update user_friends set isFriend = true " +
+            "WHERE user_id = ? and friend_id = ? or friend_id = ? and user_id = ?";
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addFriend(Long userId, Long friendId, boolean isFriend) {
-        log.debug("добавить друзей ({}, {}, {})", userId, friendId, isFriend);
-        jdbcTemplate.update("INSERT INTO user_friends (user_id, friend_id, isFriend) VALUES(?, ?, ?)",
-                userId, friendId, isFriend);
-        Friendship friendship = getFriend(userId, friendId);
-        log.trace("Список друзей: {}", friendship);
+    public void addFriend(Long userId, Long friendId) {
+        log.debug("добавить друзей ({}, {}, {})", userId, friendId);
+        jdbcTemplate.update(INSERT_QUERY, userId, friendId);
+        if (isFriend(userId, friendId)) {
+            jdbcTemplate.update(UPDATE_FRIENDSHIP_QUERY, userId, friendId, userId, friendId);
+        }
     }
 
     @Override
     public void deleteFriend(Long userId, Long friendId) {
         log.debug("удалить друзей ({}, {})", userId, friendId);
-        Friendship friendship = Objects.requireNonNull(getFriend(userId, friendId));
-        if (friendship.isFriend()) {
-            jdbcTemplate.update("UPDATE user_friends SET isFriend=false WHERE user_id=? AND friend_id=?",
-                    userId, friendId);
-            log.debug("Пользователи {} и {} больше не друзья", userId, friendId);
-        } else {
-            jdbcTemplate.update("DELETE FROM user_friends WHERE user_id=? AND friend_id=?", userId, friendId);
-        }
-        log.trace("Список без друзей: {}", friendship);
+        jdbcTemplate.update(DELETE_QUERY, userId, friendId);
     }
 
     @Override
-    public List<Long> getFriends(Long userId) {
+    public List<User> getFriends(Long userId) {
         log.debug("получить список друзей({})", userId);
-        List<Long> friendsList = jdbcTemplate.query(
-                        "SELECT user_id, friend_id, isFriend FROM user_friends WHERE user_id=?",
-                        new FriendshipMapper(), userId)
-                .stream()
-                .map(Friendship::getFriendId)
-                .collect(Collectors.toList());
-        log.trace("Список друзей пользователя {} : {}", userId, friendsList);
-        return friendsList;
+        return jdbcTemplate.query(FIND_BY_ID_QUERY, new UserMapper(), userId);
     }
 
     @Override
-    public Friendship getFriend(Long userId, Long friendId) {
-        return jdbcTemplate.queryForObject(
-                "SELECT user_id, friend_id, isFriend FROM user_friends WHERE user_id=? AND friend_id=?",
-                new FriendshipMapper(), userId, friendId);
+    public List<User> getCommonFriends(Long userId, Long friendId) {
+        return jdbcTemplate.query(GET_COMMON_FRIENDS, new UserMapper(), userId, friendId);
     }
 
     @Override
     public boolean isFriend(Long userId, Long friendId) {
-        try {
-            getFriend(userId, friendId);
-            log.trace("Найдена дружба между {} и {}", userId, friendId);
-            return true;
-        } catch (EmptyResultDataAccessException exception) {
-            log.trace("Не найдена дружба между {} и {}", userId, friendId);
-            return false;
-        }
+        return jdbcTemplate.queryForObject(FIND_COMMON_BY_ID_QUERY, Integer.class, friendId, userId) > 0;
     }
 }

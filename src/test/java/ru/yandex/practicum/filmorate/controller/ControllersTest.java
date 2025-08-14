@@ -31,7 +31,7 @@ class ControllersTest {
         film.setDuration(Duration.ofMinutes(-1));
 
         ResponseEntity<String> response = restTemplate.postForEntity("/films", film, String.class);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
     }
 
