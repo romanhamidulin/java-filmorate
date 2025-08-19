@@ -81,6 +81,7 @@
 SELECT*
 FROM users
 WHERE user_id = 1;
+
 Получение фильма с ID = 10:
 SELECT*
 FROM films

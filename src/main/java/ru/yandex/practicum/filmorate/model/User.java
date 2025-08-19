@@ -3,15 +3,13 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-
-
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
 public class User {
-    private int id;
+    private Long id;
 
     @NotBlank
     @Email
@@ -26,5 +24,6 @@ public class User {
     @PastOrPresent
     private LocalDate birthday;
 
-    private final Set<Integer> friends = new HashSet<>();
+    private final Set<Long> friends = new HashSet<>();
+
 }

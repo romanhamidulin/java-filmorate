@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.yandex.practicum.filmorate.enums.Mpas;
 
 @Data
 @NoArgsConstructor
@@ -18,6 +17,9 @@ public class Mpa {
 
     @NotNull
     @NotBlank
-    private Mpas name;
+    private String name;
 
+    public Mpa(int id) {
+        this.id = id;
+    }
 }
