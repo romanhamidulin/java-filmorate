@@ -15,7 +15,7 @@ import java.util.Optional;
 public class MpaStorage extends BaseStorage<Mpa> implements MpaDao {
 
     private static final String FIND_ALL_QUERY = "select * from film_mpa order by id";
-    private static final String FIND_BY_ID_QUERY = "select * from film_mpa where id = ? order by id";
+    private static final String FIND_BY_ID_QUERY = "select * from film_mpa where id = ?";
 
     public MpaStorage(JdbcTemplate jdbc, RowMapper<Mpa> mapper) {
         super(jdbc, mapper);

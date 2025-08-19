@@ -7,17 +7,14 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.BaseStorage;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Repository
 public class GenreStorage extends BaseStorage<Genre> implements GenreDao {
 
-    private static final String FIND_ALL_QUERY = "select * from genre order by id";
-    private static final String FIND_BY_ID_QUERY = "select * from genre where id = ? order by id";
+    private static final String FIND_ALL_QUERY = "select * from genre";
+    private static final String FIND_BY_ID_QUERY = "select * from genre where id = ?";
     private static final String FIND_FILM_GENRES_BY_ID_QUERY = "SELECT f.genre_id as id, g.name as name FROM film_genre AS f LEFT OUTER JOIN genre " +
             "AS g ON f.genre_id = g.id WHERE f.film_id=? ORDER BY g.id";
 
@@ -36,7 +33,7 @@ public class GenreStorage extends BaseStorage<Genre> implements GenreDao {
     @Override
     public List<Genre> getAllGenres() {
         log.debug("все жанры()");
-        List<Genre> genreList = findMany(FIND_ALL_QUERY);;
+        List<Genre> genreList = findMany(FIND_ALL_QUERY).stream().sorted(Comparator.comparing(Genre::getId)).toList();;
         log.trace("Возвращены все жанры: {}", genreList);
         return genreList;
     }
